@@ -1,9 +1,8 @@
-import { Icon, Message as MessageSemanticUI } from 'semantic-ui-react';
 import { MessageProps } from '../../@types';
 
 /*
   Objectif : créer un composant ultra-configurable
-  basé sur React Semantic UI
+  basé sur Tailwind CSS
 
   Fonctionnalités : un message pourra être défini par
 
@@ -26,113 +25,78 @@ import { MessageProps } from '../../@types';
     },
     status: 'success',
   }
-
-  Étapes :
-  - je mets mes props désirées
-  - je les type
-  - je les utilise (avec des conditions pour les optionnelles)
-  - j'appelle mon composant à plusieurs endroits de mon application
 */
 
 function Message({ content, icon, header, status }: MessageProps) {
-  console.log(content, icon, header, status);
-
-  /*
-    pour le status,
-    selon la doc de React SemanticUI
-    (https://react.semantic-ui.com/collections/message/#variations-info et suivante)
-    on peut ajouter `info`, `warning`, `success`, `error` (raccourci de `info={true}`)
-    pour modifier la couleur du message
-
-    plusieurs solutions, on décrit chaque cas, exemple :
-
-    ```js
-    <MessageSemanticUI
-      info={false}
-      warning={false}
-      success={true}
-      error={false}
-    >
-      Mon contenu
-    </MessageSemanticUI>
-    ```
-    → sera en vert
-
-    Avec des variables = notre prop `status`
-    ```js
-    <MessageSemanticUI
-      info={status === 'info'}
-      warning={status === 'warning'}
-      success={status === 'success'}
-      error={status === 'error'}
-    >
-      Mon contenu
-    </MessageSemanticUI>
-    ```
-    → si `status === 'success'`, les autres seront à `false`
-    → on affiche en vert
-
-    MAIS c'est pas très beau !
-
-    on réfléchit à comment refactoriser tout ça :
-
-    quand on donne en prop, par exemple, `status: 'success'`,
-    on veut obtenir `success={true}`
-    quand on donne en prop, par exemple, `status: 'error'`,
-    on veut obtenir `error={true}`
-    
-    → la valeur de notre prop, devient donc le nom de la prop de <MessageSemanticUI>
-    (avec `true` comme valeur)
-
-    pour faire en « mode automatique », on passe par un objet auquel on calculera
-    la propriété = _computed property_
-
-    const msgStatus = {
-      [status]: true, // on remplace `[status]` par la valeur de `status` !!!
+  const getStatusClasses = () => {
+    switch (status) {
+      case 'success':
+        return 'bg-green-50 border-green-200 text-green-800 shadow-soft';
+      case 'error':
+        return 'bg-accent-50 border-accent-200 text-accent-800 shadow-soft';
+      case 'warning':
+        return 'bg-yellow-50 border-yellow-200 text-yellow-800 shadow-soft';
+      case 'info':
+        return 'bg-primary-50 border-primary-200 text-primary-800 shadow-soft';
+      default:
+        return 'bg-secondary-50 border-secondary-200 text-secondary-800 shadow-soft';
     }
-
-    et on doit faire ça seulement si on a un `status`
-  */
-  const msgStatus = !!status && {
-    [status]: true,
   };
-  // maintenant que j'ai un objet, je peux lui donner en tant que props
+
+  const getIcon = () => {
+    if (!icon) return null;
+    const iconName = icon.name;
+    let iconPath = '';
+    let iconColor = '';
+    switch (iconName) {
+      case 'check':
+        iconPath = 'M5 13l4 4L19 7';
+        iconColor = 'text-green-600';
+        break;
+      case 'cancel':
+        iconPath = 'M6 18L18 6M6 6l12 12';
+        iconColor = 'text-accent-600';
+        break;
+      case 'info':
+        iconPath = 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z';
+        iconColor = 'text-primary-600';
+        break;
+      default:
+        return null;
+    }
+    return (
+      <svg
+        className={`w-6 h-6 mr-3 flex-shrink-0 ${iconColor}`}
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d={iconPath}
+        />
+      </svg>
+    );
+  };
 
   return (
-    // Pour ajouter une icône à mon message, j'ai 2 choses à faire :
-    //   - ajouter la prop `icon={true}`
-    //   - ajouter l'élément <Icon />
-    // > https://react.semantic-ui.com/collections/message/#types-icon
-
-    // je vais transformer la valeur de `icon` en booléen :
-    //   - si c'est un objet, ça me renvoie `true` → je l'affiche
-    //   - si c'est `null`, ça me renvoie `false` → je n'en ai pas
-    // pour transformer un type en sa valeur booléenne correspondante,
-    // j'utilise le double NOT logical (!)
-    //
-    // icon  = {……} → !icon = false → !!icon = !false = true
-    // icpon = null → !icon = true  → !!icon = !true  = false
-    <MessageSemanticUI icon={!!icon} {...msgStatus}>
-      {icon && (
-        // chaque propriété de icon devient un attribut JSX
-        <Icon {...icon} />
-      )}
-
-      <MessageSemanticUI.Content>
-        {/* si `header` est défini et non nul, je l'affiche */}
-        {header && (
-          <MessageSemanticUI.Header>{header}</MessageSemanticUI.Header>
-        )}
-
-        {content}
-      </MessageSemanticUI.Content>
-    </MessageSemanticUI>
+    <div
+      className={`border-l-4 p-6 mb-6 rounded-xl ${getStatusClasses()} animate-slide-up`}
+    >
+      <div className="flex items-start">
+        {getIcon()}
+        <div className="flex-1">
+          {header && <h3 className="font-semibold text-lg mb-2">{header}</h3>}
+          <p className="font-medium leading-relaxed">{content}</p>
+        </div>
+      </div>
+    </div>
   );
 }
 
 // Valeur par défaut de mes props
-// → plusieurs stratégies :
-// https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/require-default-props.md
 Message.defaultProps = {
   icon: null,
   header: null,
