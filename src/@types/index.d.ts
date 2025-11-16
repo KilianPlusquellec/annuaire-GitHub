@@ -9,6 +9,7 @@ export type Repos = {
   };
   html_url: string;
   description: string | null;
+  stargazers_count?: number;
 };
 
 export type ApiData = {

@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { Image } from 'semantic-ui-react';
 
 import Message from './Message';
 import MoreResults from './MoreResults';
@@ -11,8 +10,6 @@ import { NO_QUERY, NO_RESULTS, errorMessages } from '../../@errors';
 import { ApiData, MessageProps } from '../../@types';
 
 import logo from '../../assets/images/GitHub_Logo.png';
-
-import './App.scss';
 
 const API_BASE_URL =
   'https://api.github.com/search/repositories?sort=stars&order=desc';
@@ -91,7 +88,7 @@ function App() {
             status: 'error',
           });
         } else {
-          alert(errorMessages.UNKNOWN_ERROR);
+          console.error(errorMessages.UNKNOWN_ERROR);
           setMessage({
             content: errorMessages.UNKNOWN_ERROR,
             header: 'Erreur',
@@ -123,21 +120,35 @@ function App() {
   };
 
   return (
-    <div className="app">
-      <header className="header">
-        <a href="/"><Image src={logo} size="small" centered /></a>
-        <h1>Le meilleur annuaire GitHub</h1>
+    <div className="bg-gradient-to-br from-secondary-50 to-secondary-100 min-h-screen">
+      <div className="mx-auto max-w-6xl p-6">
+        <header className="text-center py-12 animate-fade-in">
+          <a href="/" className="inline-block mb-8">
+            <img
+              src={logo}
+              alt="GitHub Logo"
+              className="w-20 h-20 mx-auto filter drop-shadow-lg hover:scale-105 transition-transform duration-300"
+            />
+          </a>
+          <h1 className="text-4xl md:text-5xl font-display font-bold text-secondary-900 mb-2">
+            Annuaire GitHub
+          </h1>
+          <p className="text-lg text-secondary-600 font-medium mb-8">
+            Découvrez les meilleurs dépôts open source
+          </p>
 
-        <SearchBar doQuery={doQuery} />
-      </header>
+          <SearchBar doQuery={doQuery} />
+        </header>
 
-      <main>
-        {/* <Message content={message.content} status={message.status} /> */}
-        <Message {...message} />
-        <ReposResults list={results.items} />
+        <main className="animate-slide-up">
+          <Message {...message} />
+          <ReposResults list={results.items} />
 
-        {results.total_count > PER_PAGE && <MoreResults nextPage={nextPage} />}
-      </main>
+          {results.total_count > PER_PAGE && (
+            <MoreResults nextPage={nextPage} />
+          )}
+        </main>
+      </div>
     </div>
   );
 }
