@@ -1,30 +1,39 @@
+import { ArrowDown, CircleNotch } from '@phosphor-icons/react';
+
+import Button, { ButtonIcon } from '../ui/Button';
+
 type MoreResultsProps = {
   nextPage: () => void;
+  loading?: boolean;
+  remaining: number;
 };
 
-function MoreResults({ nextPage }: MoreResultsProps) {
+function MoreResults({
+  nextPage,
+  loading = false,
+  remaining,
+}: MoreResultsProps) {
   return (
-    <div className="text-center mt-8">
-      <button
-        type="button"
+    <div className="mt-10 flex flex-col items-center gap-3">
+      <Button
+        variant="secondary"
+        size="lg"
         onClick={nextPage}
-        className="bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-8 rounded-xl shadow-soft hover:shadow-medium transition-all duration-200 hover:scale-105 inline-flex items-center"
+        disabled={loading}
       >
-        <span>Charger plus de résultats</span>
-        <svg
-          className="w-5 h-5 ml-2"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 14l-7 7m0 0l-7-7m7 7V3"
-          />
-        </svg>
-      </button>
+        {loading ? 'Chargement' : 'Charger la suite'}
+        <ButtonIcon tone="on-surface">
+          {loading ? (
+            <CircleNotch size={16} weight="bold" className="animate-spin" />
+          ) : (
+            <ArrowDown size={16} weight="bold" />
+          )}
+        </ButtonIcon>
+      </Button>
+
+      <p className="font-mono text-xs text-fg-3">
+        {remaining} résultats restants
+      </p>
     </div>
   );
 }

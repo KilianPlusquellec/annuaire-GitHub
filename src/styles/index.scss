@@ -1,3 +1,172 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+  ── Système de design ────────────────────────────────────────────────────────
+
+  Thème      : un seul thème par page, verrouillé sur <html data-theme>.
+               Clair par défaut, sombre au choix. Jamais d'inversion en
+               cours de page.
+  Accent     : un seul, le vert. Partout, dans les deux thèmes.
+  Rayons     : les contrôles sont des pilules complètes (rounded-full),
+               les surfaces utilisent une coque --r-shell et un cœur --r-core.
+               --r-core = --r-shell - padding de la coque (6px) pour que les
+               deux courbes restent concentriques.
+  Couleurs   : canaux RGB, l'opacité est appliquée à l'usage.
+*/
+
+:root {
+  --bg: 246 247 249;
+  --shell: 233 236 240;
+  --card: 255 255 255;
+  --line: 17 22 28;
+  --fg: 17 21 26;
+  --fg-2: 84 92 102;
+  --fg-3: 106 114 125;
+  --accent: 22 101 52;
+  --accent-ink: 255 255 255;
+  --accent-fg: 21 128 61;
+  --danger: 178 42 42;
+
+  --r-shell: 1.5rem;
+  --r-core: calc(var(--r-shell) - 0.375rem);
+
+  --shadow-soft: 0 1px 2px rgb(17 22 28 / 0.05), 0 10px 30px -20px rgb(17 22 28 / 0.35);
+  --shadow-lift: 0 1px 2px rgb(17 22 28 / 0.05), 0 22px 45px -24px rgb(17 22 28 / 0.4);
+  --edge-highlight: inset 0 1px 0 rgb(255 255 255 / 0.9);
+}
+
+[data-theme='dark'] {
+  --bg: 9 10 12;
+  --shell: 19 21 25;
+  --card: 26 29 34;
+  --line: 255 255 255;
+  --fg: 237 239 242;
+  --fg-2: 173 180 189;
+  --fg-3: 139 146 155;
+  --accent: 63 185 80;
+  --accent-ink: 4 18 10;
+  --accent-fg: 86 211 100;
+  --danger: 248 129 129;
+
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.5), 0 12px 32px -22px rgb(0 0 0 / 0.9);
+  --shadow-lift: 0 1px 2px rgb(0 0 0 / 0.5), 0 26px 50px -26px rgb(0 0 0 / 0.95);
+  --edge-highlight: inset 0 1px 0 rgb(255 255 255 / 0.07);
+}
+
+@layer base {
+  html {
+    /* Le flash gris au tap est le signal « ceci est un site web » le plus
+       audible : on le coupe, chaque contrôle a son propre état :active. */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-bg font-sans text-fg antialiased;
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    /* Encoches et bords arrondis en paysage ou en PWA installée. */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Pas de délai de 300 ms, pas de sélection de texte sur un contrôle. */
+  button,
+  [role='button'],
+  a {
+    touch-action: manipulation;
+  }
+
+  button,
+  [role='button'] {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  ::selection {
+    background: rgb(var(--accent) / 0.22);
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--accent-fg));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Le grain reste sur un calque fixe, jamais sur un conteneur qui défile. */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+@layer components {
+  /* Coque externe : le « plateau » dans lequel vient se poser le cœur. */
+  .shell {
+    @apply rounded-shell border border-line/[0.09] bg-shell p-1.5;
+  }
+
+  /* Cœur interne : la surface réellement lisible. */
+  .core {
+    @apply rounded-core border border-line/[0.06] bg-card shadow-edge;
+  }
+
+  .hairline {
+    @apply border-line/[0.09];
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  /* Le rail commence à gauche : seul le bord droit est estompé, pour
+     signaler qu'il reste du contenu à faire défiler. */
+  .fade-edges {
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 3rem), transparent);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 3rem), transparent);
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+    /* Le geste horizontal reste dans le rail, il ne déclenche pas le
+       « retour » du navigateur. */
+    overscroll-behavior-x: contain;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/*
+  Mouvement réduit : on garde les fondus et les changements de couleur, qui
+  aident à comprendre ce qui change, et on supprime tout déplacement.
+*/
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition-property: opacity, color, background-color, border-color, box-shadow !important;
+    transition-duration: 150ms !important;
+    transform: none !important;
+  }
+
+  [data-enter] {
+    opacity: 1 !important;
+  }
+}
