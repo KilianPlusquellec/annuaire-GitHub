@@ -3,20 +3,32 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="description" content="annuaire GitHub" />
-  <meta name="keywords" content="annuaire, GitHub" />
+  <meta name="description"
+    content="Annuaire GitHub : cherchez parmi des millions de dépôts open source, classés par étoiles." />
+  <meta name="keywords" content="annuaire, GitHub, dépôts, open source, recherche" />
   <meta name="author" content="Kilian Plusquellec" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#1e40af" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
+  <meta name="theme-color" content="#f6f7f9" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#090a0c" media="(prefers-color-scheme: dark)" />
+  <meta name="color-scheme" content="light dark" />
   <link rel="icon" href="/favicon.ico" />
-  <link rel="apple-touch-icon" />
+  <link rel="apple-touch-icon" href="/logo192.png" />
   <link rel="manifest" href="/manifest.json" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap"
-    rel="stylesheet">
-  <title>Annuaire GitHub Professionnel</title>
+  <link rel="preconnect" href="https://api.github.com" />
+  <title>Annuaire GitHub</title>
+  <script>
+    // Le thème est résolu avant le premier paint : pas de flash au chargement.
+    (() => {
+      try {
+        const saved = localStorage.getItem('theme');
+        const system = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme = saved === 'dark' || saved === 'light' ? saved : system;
+      } catch {
+        document.documentElement.dataset.theme = 'light';
+      }
+    })();
+  </script>
 </head>
 
 <body>

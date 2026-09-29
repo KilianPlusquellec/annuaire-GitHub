@@ -57,6 +57,9 @@ module.exports = {
           'Use typed hooks `useAppDispatch` and `useAppSelector` instead.',
       },
     ],
+    // Les composants fonctionnels utilisent les valeurs par défaut de la
+    // déstructuration : `defaultProps` est déprécié sur ce type de composant.
+    'react/require-default-props': ['error', { functions: 'defaultArguments' }],
     'react-refresh/only-export-components': [
       'warn',
       { allowConstantExport: true },
